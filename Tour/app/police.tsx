@@ -5,17 +5,12 @@ import {
   ScrollView,
   TouchableOpacity,
   Modal,
-  Alert,
   StatusBar,
-  Image,
   Dimensions,
   SafeAreaView,
   StyleSheet,
   Animated,
-  Easing,
   Platform,
-  ActivityIndicator,
-  Linking,
   TextInput,
   FlatList,
 } from 'react-native';
@@ -246,13 +241,8 @@ const HeatmapCard = ({ region, riskLevel, density, colors }) => {
 export default function PoliceMonitoringDashboard() {
   const [darkMode, setDarkMode] = useState(false);
   const [selectedTab, setSelectedTab] = useState('dashboard');
-  const [showSOSModal, setShowSOSModal] = useState(false);
   const [selectedAlert, setSelectedAlert] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all');
-  const [refreshing, setRefreshing] = useState(false);
-  
-  const slideAnim = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
   
   const colors = darkMode ? COLORS.dark : COLORS.light;

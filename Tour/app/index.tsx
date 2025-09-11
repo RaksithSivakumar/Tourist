@@ -3,6 +3,7 @@ import React from 'react';
 import { View, Text, ActivityIndicator } from 'react-native';
 import { useAppSelector } from '@/store';
 
+
 export default function RoleRouter() {
   const { isAuthenticated, role } = useAppSelector((s) => s.auth);
   const segments = useSegments();

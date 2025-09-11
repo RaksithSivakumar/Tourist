@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+
 import {
   View,
   Text,
@@ -10,14 +11,12 @@ import {
   Image,
   Dimensions,
   SafeAreaView,
-  StyleSheet,
   Animated,
   Easing,
   Platform,
   ActivityIndicator,
   Linking,
 } from 'react-native';
-import { PanGestureHandler, State } from 'react-native-gesture-handler';
 
 const { width, height } = Dimensions.get('window');
 
@@ -60,24 +59,18 @@ const COLORS = {
 };
 
 // Custom Gradient Component
-const GradientView = ({ colors, style, children }) => {
+const GradientView = ({ colors, children, className = "" }) => {
   return (
-    <View style={[style, { overflow: 'hidden' }]}>
-      <View style={[StyleSheet.absoluteFill, { 
-        backgroundColor: colors[0],
-        opacity: 0.9 
-      }]} />
-      <View style={[StyleSheet.absoluteFill, { 
-        backgroundColor: colors[1],
-        opacity: 0.7 
-      }]} />
+    <View className={`overflow-hidden ${className}`}>
+      <View className="absolute inset-0 opacity-90" style={{ backgroundColor: colors[0] }} />
+      <View className="absolute inset-0 opacity-70" style={{ backgroundColor: colors[1] }} />
       {children}
     </View>
   );
 };
 
 // Icon Component using MaterialCommunityIcons naming
-const IconComponent = ({ name, size = 24, color = '#000', style }) => {
+const IconComponent = ({ name, size = 24, color = '#000', className = "" }) => {
   const icons = {
     'heart-pulse': '❤️',
     'gas-cylinder': '💨',
@@ -103,7 +96,7 @@ const IconComponent = ({ name, size = 24, color = '#000', style }) => {
   };
 
   return (
-    <Text style={[{ fontSize: size, color }, style]}>
+    <Text className={className} style={{ fontSize: size, color }}>
       {icons[name] || '•'}
     </Text>
   );
@@ -135,25 +128,23 @@ const SafetyGauge = ({ score, colors }) => {
   }
 
   return (
-    <View style={styles.gaugeContainer}>
-      <View style={styles.gaugeOuterCircle}>
+    <View className="items-center justify-center p-5 mb-5 relative">
+      <View className="w-48 h-5 rounded-lg overflow-hidden" style={{ backgroundColor: '#E9ECEF' }}>
         <Animated.View 
-          style={[
-            styles.gaugeProgress,
-            {
-              width: animatedValue.interpolate({
-                inputRange: [0, 100],
-                outputRange: ['0%', '100%']
-              }),
-              backgroundColor: gaugeColor
-            }
-          ]}
+          className="h-full rounded-lg"
+          style={{
+            width: animatedValue.interpolate({
+              inputRange: [0, 100],
+              outputRange: ['0%', '100%']
+            }),
+            backgroundColor: gaugeColor
+          }}
         />
       </View>
-      <View style={styles.gaugeInnerCircle}>
-        <Text style={[styles.gaugeScore, { color: colors.text }]}>{score}</Text>
-        <Text style={[styles.gaugeLabel, { color: colors.textSecondary }]}>Safety Score</Text>
-        <Text style={[styles.gaugeStatus, { color: gaugeColor }]}>{status}</Text>
+      <View className="absolute items-center">
+        <Text className="text-4xl font-bold mt-7" style={{ color: colors.text }}>{score}</Text>
+        <Text className="text-sm mt-1" style={{ color: colors.textSecondary }}>Safety Score</Text>
+        <Text className="text-base font-semibold mt-2" style={{ color: gaugeColor }}>{status}</Text>
       </View>
     </View>
   );
@@ -174,22 +165,27 @@ const MetricCard = ({ icon, value, unit, label, color, colors, delay = 0 }) => {
   }, []);
 
   return (
-    <Animated.View style={[
-      styles.metricCard,
-      {
+    <Animated.View 
+      className="w-36 h-28 rounded-2xl p-4 mr-4 shadow-sm"
+      style={{
         backgroundColor: colors.card,
-        transform: [{ scale: scaleValue }]
-      }
-    ]}>
-      <View style={[styles.metricIconContainer, { backgroundColor: color }]}>
+        transform: [{ scale: scaleValue }],
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+      }}
+    >
+      <View className="w-10 h-10 rounded-xl justify-center items-center mb-3" style={{ backgroundColor: color }}>
         <IconComponent name={icon} size={20} color={colors.white} />
       </View>
-      <View style={styles.metricContent}>
-        <Text style={[styles.metricValue, { color: colors.text }]}>
+      <View className="flex-1 justify-end">
+        <Text className="text-xl font-bold mb-1" style={{ color: colors.text }}>
           {value}
-          <Text style={[styles.metricUnit, { color: colors.textSecondary }]}> {unit}</Text>
+          <Text className="text-xs font-medium" style={{ color: colors.textSecondary }}> {unit}</Text>
         </Text>
-        <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>{label}</Text>
+        <Text className="text-xs font-medium" style={{ color: colors.textSecondary }}>{label}</Text>
       </View>
     </Animated.View>
   );
@@ -314,7 +310,7 @@ export const SmartTouristDashboard = () => {
     
     return (
       <TouchableOpacity
-        style={styles.tab}
+        className="flex-1 items-center"
         onPress={() => {
           setSelectedTab(name);
           Animated.spring(slideAnim, {
@@ -324,23 +320,25 @@ export const SmartTouristDashboard = () => {
         }}
         activeOpacity={0.7}
       >
-        <View style={[
-          styles.tabButton,
-          isActive && { 
-            backgroundColor: colors.primary,
-            borderBottomWidth: 3,
-            borderBottomColor: colors.white,
-          }
-        ]}>
+        <View className={`flex-row items-center py-3 px-4 rounded-xl justify-center ${
+          isActive 
+            ? 'border-b-2' 
+            : ''
+        }`} style={{
+          backgroundColor: isActive ? colors.primary : 'transparent',
+          borderBottomColor: isActive ? colors.white : 'transparent',
+          borderBottomWidth: isActive ? 3 : 0,
+        }}>
           <IconComponent
             name={icon}
             size={22}
             color={isActive ? colors.white : colors.textSecondary}
           />
-          <Text style={[
-            styles.tabText,
-            { color: isActive ? colors.white : colors.textSecondary }
-          ]}>
+          <Text className={`ml-1.5 text-xs font-semibold ${
+            isActive ? 'text-white' : ''
+          }`} style={{
+            color: isActive ? colors.white : colors.textSecondary
+          }}>
             {label}
           </Text>
         </View>
@@ -350,11 +348,11 @@ export const SmartTouristDashboard = () => {
 
   // Overview Tab
   const renderOverview = () => (
-    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+    <ScrollView showsVerticalScrollIndicator={false} className="pb-8 px-5">
       {/* Health Metrics Section */}
-      <View style={styles.sectionContainer}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>Health Metrics</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScroll}>
+      <View className="mb-5">
+        <Text className="text-xl font-bold mb-4 px-1" style={{ color: colors.text }}>Health Metrics</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} className="-mx-5 pl-5">
           <MetricCard
             icon="heart-pulse"
             value={touristData.wearable_iot.health_status.heart_rate}
@@ -386,41 +384,37 @@ export const SmartTouristDashboard = () => {
       </View>
 
       {/* Safety Score Section */}
-      <View style={[styles.card, { backgroundColor: colors.card }]}>
-        <Text style={[styles.cardTitle, { color: colors.text }]}>Safety Overview</Text>
+      <View className="rounded-2xl p-5 mb-5 shadow-sm" style={{ backgroundColor: colors.card }}>
+        <Text className="text-lg font-bold" style={{ color: colors.text }}>Safety Overview</Text>
         <SafetyGauge score={touristData.safety_score} colors={colors} />
-        <View style={styles.safetyDetails}>
-          <View style={styles.safetyDetailItem}>
-            <Text style={[styles.safetyDetailLabel, { color: colors.textSecondary }]}>Location Status</Text>
-            <Text style={[styles.safetyDetailValue, { color: colors.success }]}>Safe Zone</Text>
+        <View className="flex-row justify-around pt-5">
+          <View className="items-center">
+            <Text className="text-xs mb-1" style={{ color: colors.textSecondary }}>Location Status</Text>
+            <Text className="text-sm font-semibold" style={{ color: colors.success }}>Safe Zone</Text>
           </View>
-          <View style={styles.safetyDetailItem}>
-            <Text style={[styles.safetyDetailLabel, { color: colors.textSecondary }]}>Health Status</Text>
-            <Text style={[styles.safetyDetailValue, { color: colors.success }]}>Normal</Text>
+          <View className="items-center">
+            <Text className="text-xs mb-1" style={{ color: colors.textSecondary }}>Health Status</Text>
+            <Text className="text-sm font-semibold text-red-700">Normal</Text>
           </View>
         </View>
       </View>
       
       {/* Recent Alerts Section */}
-      <View style={[styles.card, { backgroundColor: colors.card }]}>
-        <View style={styles.cardHeader}>
-          <Text style={[styles.cardTitle, { color: colors.text }]}>Recent Alerts</Text>
+      <View className="rounded-2xl p-5 mb-5 shadow-sm" style={{ backgroundColor: colors.card }}>
+        <View className="flex-row justify-between items-center mb-4">
+          <Text className="text-lg font-bold" style={{ color: colors.text }}>Recent Alerts</Text>
           <IconComponent name="bell" size={20} color={colors.textSecondary} />
         </View>
         {touristData.alerts.map((alert, index) => (
-          <View key={index} style={[
-            styles.alertItem, 
-            { 
-              backgroundColor: colors.card,
-              borderLeftWidth: 4,
-              borderLeftColor: alert.severity === 'high' ? colors.danger : 
-                             alert.severity === 'medium' ? colors.warning : colors.success
-            }
-          ]}>
-            <View style={styles.alertContent}>
-              <Text style={[styles.alertMessage, { color: colors.text }]}>{alert.message}</Text>
-              <Text style={[styles.alertLocation, { color: colors.textTertiary }]}>{alert.location}</Text>
-              <Text style={[styles.alertTime, { color: colors.textSecondary }]}>
+          <View key={index} className="flex-row items-center p-4 rounded-xl mb-3 border-l-4" style={{
+            backgroundColor: colors.card,
+            borderLeftColor: alert.severity === 'high' ? colors.danger : 
+                           alert.severity === 'medium' ? colors.warning : colors.success
+          }}>
+            <View className="flex-1">
+              <Text className="text-sm font-semibold mb-1" style={{ color: colors.text }}>{alert.message}</Text>
+              <Text className="text-xs mb-0.5" style={{ color: colors.textTertiary }}>{alert.location}</Text>
+              <Text className="text-xs" style={{ color: colors.textSecondary }}>
                 {new Date(alert.timestamp).toLocaleTimeString()}
               </Text>
             </View>
@@ -432,59 +426,57 @@ export const SmartTouristDashboard = () => {
 
   // Itinerary Tab
   const renderItinerary = () => (
-    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+    <ScrollView showsVerticalScrollIndicator={false} className="pb-8 px-5">
       {/* Trip Progress */}
-      <View style={[styles.card, { backgroundColor: colors.card }]}>
-        <Text style={[styles.cardTitle, { color: colors.text }]}>Trip Progress</Text>
-        <View style={styles.progressContainer}>
-          <View style={styles.progressInfo}>
-            <Text style={[styles.progressDay, { color: colors.text }]}>
+      <View className="rounded-2xl p-5 mb-5 shadow-sm" style={{ backgroundColor: colors.card }}>
+        <Text className="text-lg font-bold" style={{ color: colors.text }}>Trip Progress</Text>
+        <View className="mb-4">
+          <View className="mb-3">
+            <Text className="text-lg font-bold" style={{ color: colors.text }}>
               Day {touristData.trip_itinerary.current_day} of {touristData.trip_itinerary.total_days}
             </Text>
-            <Text style={[styles.progressLocation, { color: colors.textSecondary }]}>
+            <Text className="text-sm mt-0.5" style={{ color: colors.textSecondary }}>
               Currently in {touristData.location}
             </Text>
           </View>
-          <View style={[styles.progressBar, { backgroundColor: colors.border }]}>
-            <View style={[
-              styles.progressFill, 
-              { 
+          <View className="h-2 rounded-sm overflow-hidden" style={{ backgroundColor: colors.border }}>
+            <View 
+              className="h-full rounded-sm" 
+              style={{
                 backgroundColor: colors.primary,
                 width: `${(touristData.trip_itinerary.current_day / touristData.trip_itinerary.total_days) * 100}%`
-              }
-            ]} />
+              }}
+            />
           </View>
         </View>
       </View>
 
       {/* Map Section */}
-      <View style={[styles.card, { backgroundColor: colors.card, padding: 0, overflow: 'hidden' }]}>
-        <View style={[styles.mapPlaceholder, { backgroundColor: colors.background }]}>
+      <View className="rounded-2xl mb-5 overflow-hidden shadow-sm" style={{ backgroundColor: colors.card }}>
+        <View className="h-48 justify-center items-center rounded-2xl p-5" style={{ backgroundColor: colors.background }}>
           <IconComponent name="map" size={40} color={colors.textSecondary} />
-          <Text style={[styles.mapPlaceholderText, { color: colors.text }]}>
+          <Text className="text-base font-semibold mt-2 mb-2" style={{ color: colors.text }}>
             Interactive Map View
           </Text>
-          <Text style={[styles.mapLocationText, { color: colors.textSecondary }]}>
+          <Text className="text-sm mb-4 text-center" style={{ color: colors.textSecondary }}>
             Last Known Location: {touristData.wearable_iot.last_location.address}
           </Text>
-          <TouchableOpacity style={[styles.mapButton, { backgroundColor: colors.primary }]}>
-            <Text style={styles.mapButtonText}>Open in Maps</Text>
+          <TouchableOpacity className="px-5 py-2.5 rounded-2xl" style={{ backgroundColor: colors.primary }}>
+            <Text className="text-white font-semibold">Open in Maps</Text>
           </TouchableOpacity>
         </View>
       </View>
         
       {/* Itinerary Timeline */}
-      <View style={[styles.card, { backgroundColor: colors.card }]}>
-        <Text style={[styles.cardTitle, { color: colors.text }]}>Trip Itinerary</Text>
+      <View className="rounded-2xl p-5 mb-5 shadow-sm" style={{ backgroundColor: colors.card }}>
+        <Text className="text-lg font-bold" style={{ color: colors.text }}>Trip Itinerary</Text>
         {touristData.trip_itinerary.places_planned.map((place, index) => (
-          <View key={index} style={styles.timelineItem}>
-            <View style={styles.timelineIndicator}>
-              <View style={[
-                styles.timelineDot,
-                { 
-                  backgroundColor: place.visited ? colors.success : colors.border,
-                }
-              ]}>
+          <View key={index} className="flex-row mb-5">
+            <View className="items-center mr-4">
+              <View 
+                className="w-8 h-8 rounded-2xl justify-center items-center"
+                style={{ backgroundColor: place.visited ? colors.success : colors.border }}
+              >
                 <IconComponent 
                   name={place.visited ? "check-circle" : "circle-outline"} 
                   size={16} 
@@ -492,17 +484,17 @@ export const SmartTouristDashboard = () => {
                 />
               </View>
               {index < touristData.trip_itinerary.places_planned.length - 1 && (
-                <View style={[styles.timelineLine, { backgroundColor: colors.border }]} />
+                <View className="flex-1 w-0.5 mt-2 min-h-10" style={{ backgroundColor: colors.border }} />
               )}
             </View>
-            <View style={styles.timelineContent}>
-              <Text style={[styles.placeName, { color: colors.text }]}>{place.name}</Text>
-              <Text style={[styles.placeDate, { color: colors.textSecondary }]}>
+            <View className="flex-1 pt-1">
+              <Text className="text-base font-semibold mb-1" style={{ color: colors.text }}>{place.name}</Text>
+              <Text className="text-sm" style={{ color: colors.textSecondary }}>
                 {new Date(place.date).toLocaleDateString()}
               </Text>
               {place.visited && place.rating > 0 && (
-                <View style={styles.ratingContainer}>
-                  <Text style={[styles.ratingText, { color: colors.warning }]}>
+                <View className="mt-1.5">
+                  <Text className="text-xs font-medium" style={{ color: colors.warning }}>
                     ⭐ {place.rating}/5.0
                   </Text>
                 </View>
@@ -516,30 +508,32 @@ export const SmartTouristDashboard = () => {
 
   // Safety Tab
   const renderSafety = () => (
-    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+    <ScrollView showsVerticalScrollIndicator={false} className="pb-8 px-5">
       {/* Emergency SOS Section */}
-      <View style={[styles.card, { backgroundColor: colors.card }]}>
-        <Text style={[styles.cardTitle, { color: colors.text }]}>Emergency Services</Text>
+      <View className="rounded-2xl p-5 mb-5 shadow-sm" style={{ backgroundColor: colors.card }}>
+        <Text className="text-lg font-bold" style={{ color: colors.text }}>Emergency Services</Text>
         <TouchableOpacity 
-          style={[styles.sosButton, { backgroundColor: colors.danger }]} 
+          className="flex-row py-4.5 px-6 rounded-2xl items-center justify-center mb-3 shadow-lg" 
+          style={{ backgroundColor: colors.danger }}
           onPress={triggerSOS}
           activeOpacity={0.8}
         >
           <IconComponent name="alert" size={24} color={colors.white} />
-          <Text style={styles.sosButtonText}>TRIGGER EMERGENCY SOS</Text>
+          <Text className="text-white text-base font-bold ml-3 tracking-wider">TRIGGER EMERGENCY SOS</Text>
         </TouchableOpacity>
-        <Text style={[styles.sosDescription, { color: colors.textSecondary }]}>
+        <Text className="text-sm text-center leading-5" style={{ color: colors.textSecondary }}>
           This will immediately notify emergency services and your emergency contacts with your current location.
         </Text>
       </View>
       
       {/* Emergency Contacts */}
-      <View style={[styles.card, { backgroundColor: colors.card }]}>
-        <Text style={[styles.cardTitle, { color: colors.text }]}>Emergency Contacts</Text>
+      <View className="rounded-2xl p-5 mb-5 shadow-sm" style={{ backgroundColor: colors.card }}>
+        <Text className="text-lg font-bold" style={{ color: colors.text }}>Emergency Contacts</Text>
         {touristData.contact_info.emergency_contacts.map((contact, index) => (
           <TouchableOpacity 
             key={index} 
-            style={[styles.contactItem, { backgroundColor: colors.background }]}
+            className="flex-row items-center p-4 rounded-xl mb-3"
+            style={{ backgroundColor: colors.background }}
             onPress={() => {
               if (contact.phone && contact.phone !== '112') {
                 Linking.openURL(`tel:${contact.phone}`);
@@ -549,15 +543,15 @@ export const SmartTouristDashboard = () => {
             }}
             activeOpacity={0.7}
           >
-            <View style={[styles.contactAvatar, { backgroundColor: colors.primary }]}>
-              <Text style={styles.avatarText}>{contact.avatar}</Text>
+            <View className="w-12 h-12 rounded-3xl justify-center items-center mr-4" style={{ backgroundColor: colors.primary }}>
+              <Text className="text-lg">{contact.avatar}</Text>
             </View>
-            <View style={styles.contactInfo}>
-              <Text style={[styles.contactName, { color: colors.text }]}>{contact.name}</Text>
-              <Text style={[styles.contactRelation, { color: colors.textSecondary }]}>{contact.relation}</Text>
-              <Text style={[styles.contactPhone, { color: colors.textTertiary }]}>{contact.phone}</Text>
+            <View className="flex-1">
+              <Text className="text-base font-semibold mb-0.5" style={{ color: colors.text }}>{contact.name}</Text>
+              <Text className="text-sm mb-0.5" style={{ color: colors.textSecondary }}>{contact.relation}</Text>
+              <Text className="text-xs" style={{ color: colors.textTertiary }}>{contact.phone}</Text>
             </View>
-            <View style={[styles.callButton, { backgroundColor: colors.success }]}>
+            <View className="w-10 h-10 rounded-2xl justify-center items-center" style={{ backgroundColor: colors.success }}>
               <IconComponent name="phone" size={20} color={colors.white} />
             </View>
           </TouchableOpacity>
@@ -565,8 +559,8 @@ export const SmartTouristDashboard = () => {
       </View>
 
       {/* Safety Tips */}
-      <View style={[styles.card, { backgroundColor: colors.card }]}>
-        <Text style={[styles.cardTitle, { color: colors.text }]}>Safety Tips</Text>
+      <View className="rounded-2xl p-5 mb-5 shadow-sm" style={{ backgroundColor: colors.card }}>
+        <Text className="text-lg font-bold" style={{ color: colors.text }}>Safety Tips</Text>
         {[
           "Keep your device charged above 20%",
           "Share your location with trusted contacts",
@@ -574,9 +568,9 @@ export const SmartTouristDashboard = () => {
           "Keep emergency contact numbers handy",
           "Inform someone about your travel plans"
         ].map((tip, index) => (
-          <View key={index} style={styles.tipItem}>
-            <IconComponent name="information" size={16} color={colors.primary} style={styles.tipIcon} />
-            <Text style={[styles.tipText, { color: colors.textSecondary }]}>{tip}</Text>
+          <View key={index} className="flex-row items-start mb-3">
+            <IconComponent name="information" size={16} color={colors.primary} className="mr-3 mt-0.5" />
+            <Text className="flex-1 text-sm leading-5" style={{ color: colors.textSecondary }}>{tip}</Text>
           </View>
         ))}
       </View>
@@ -584,29 +578,33 @@ export const SmartTouristDashboard = () => {
   );
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView className="flex-1" style={{ backgroundColor: colors.background }}>
       <StatusBar barStyle={darkMode ? 'light-content' : 'dark-content'} backgroundColor={colors.primary} />
       
       {/* Header */}
       <GradientView
         colors={[colors.primary, colors.primaryLight]}
-        style={styles.header}
+        className="px-5 py-5"
+        style={{ paddingTop: Platform.OS === 'ios' ? 50 : 30 }}
       >
-        <View style={styles.headerTop}>
-          <View style={styles.headerProfile}>
-            <Image source={{ uri: touristData.profile_pic }} style={styles.profileImage} />
+        <View className="flex-row justify-between items-center">
+          <View className="flex-row items-center flex-1">
+            <Image 
+              source={{ uri: touristData.profile_pic }} 
+              className="w-14 h-14 rounded-3xl mr-4 border-4 border-white/30"
+            />
             <View>
-              <Text style={styles.greeting}>Welcome back,</Text>
-              <Text style={styles.userName}>{touristData.name}</Text>
-              <View style={styles.locationContainer}>
+              <Text className="text-sm font-medium text-white/80">Welcome back,</Text>
+              <Text className="text-xl font-bold mt-0.5 text-white">{touristData.name}</Text>
+              <View className="flex-row items-center mt-1">
                 <IconComponent name="map-marker" size={14} color={colors.white} />
-                <Text style={styles.userLocation}>{touristData.location}</Text>
+                <Text className="text-xs ml-1 text-white/80">{touristData.location}</Text>
               </View>
             </View>
           </View>
-          <View style={styles.headerActions}>
+          <View className="flex-row items-center">
             <TouchableOpacity 
-              style={styles.actionButton}
+              className="w-10 h-10 rounded-2xl justify-center items-center ml-2.5 bg-white/20"
               onPress={() => setDarkMode(!darkMode)}
               activeOpacity={0.7}
             >
@@ -617,7 +615,7 @@ export const SmartTouristDashboard = () => {
               />
             </TouchableOpacity>
             <TouchableOpacity 
-              style={styles.actionButton} 
+              className="w-10 h-10 rounded-2xl justify-center items-center ml-2.5 bg-white/20" 
               onPress={() => setShowDigitalID(true)}
               activeOpacity={0.7}
             >
@@ -628,14 +626,14 @@ export const SmartTouristDashboard = () => {
       </GradientView>
 
       {/* Tab Navigation */}
-      <View style={[styles.tabContainer, { backgroundColor: colors.card }]}>
+      <View className="flex-row mx-5 -mt-5 rounded-2xl p-1.5 shadow-md" style={{ backgroundColor: colors.card }}>
         <TabButton name="overview" label="Overview" icon="view-dashboard" />
         <TabButton name="itinerary" label="Itinerary" icon="map-marker" />
         <TabButton name="safety" label="Safety" icon="shield" />
       </View>
       
       {/* Content */}
-      <View style={styles.content}>
+      <View className="flex-1 pt-2.5">
         {selectedTab === 'overview' && renderOverview()}
         {selectedTab === 'itinerary' && renderItinerary()}
         {selectedTab === 'safety' && renderSafety()}
@@ -643,13 +641,16 @@ export const SmartTouristDashboard = () => {
 
       {/* Digital ID Modal */}
       <Modal visible={showDigitalID} animationType="slide" transparent={true} onRequestClose={() => setShowDigitalID(false)}>
-        <View style={styles.modalBackdrop}>
-          <View style={[styles.modalContent, { backgroundColor: colors.card }]}>
-            <View style={styles.modalHeader}>
-              <Text style={[styles.modalTitle, { color: colors.text }]}>Digital Tourist ID</Text>
+        <View className="flex-1 justify-center items-center bg-black/70 p-5">
+          <View className="w-full max-w-sm rounded-2xl p-6" style={{ 
+            backgroundColor: colors.card,
+            maxHeight: height * 0.8
+          }}>
+            <View className="flex-row justify-between items-center mb-6">
+              <Text className="text-xl font-bold" style={{ color: colors.text }}>Digital Tourist ID</Text>
               <TouchableOpacity 
                 onPress={() => setShowDigitalID(false)}
-                style={styles.closeButton}
+                className="w-8 h-8 rounded-2xl justify-center items-center bg-black/10"
               >
                 <IconComponent name="close" size={20} color={colors.textSecondary} />
               </TouchableOpacity>
@@ -657,27 +658,30 @@ export const SmartTouristDashboard = () => {
             
             <GradientView
               colors={[colors.primary, colors.secondary]}
-              style={styles.idCard}
+              className="rounded-2xl p-6 items-center shadow-2xl"
             >
-              <Image source={{ uri: touristData.profile_pic }} style={styles.idPhoto} />
-              <Text style={styles.idName}>{touristData.name}</Text>
-              <Text style={styles.idNumber}>ID: {touristData.tourist_id}</Text>
+              <Image 
+                source={{ uri: touristData.profile_pic }} 
+                className="w-24 h-24 rounded-3xl border-4 border-white -mt-15 mb-4"
+              />
+              <Text className="text-2xl font-bold text-white mb-1">{touristData.name}</Text>
+              <Text className="text-base text-white/80 mb-5">ID: {touristData.tourist_id}</Text>
               
-              <View style={styles.qrContainer}>
-                <Image source={{ uri: touristData.digital_id.qr_code }} style={styles.qrCode} />
+              <View className="bg-white p-4 rounded-xl mb-5">
+                <Image source={{ uri: touristData.digital_id.qr_code }} className="w-36 h-36" />
               </View>
               
-              <View style={styles.idDetails}>
-                <Text style={styles.idValidity}>
+              <View className="items-center">
+                <Text className="text-sm text-white/90 mb-3 text-center">
                   Valid: {new Date(touristData.digital_id.validity_start).toLocaleDateString()} - {new Date(touristData.digital_id.validity_end).toLocaleDateString()}
                 </Text>
-                <View style={[styles.idStatus, { backgroundColor: colors.success }]}>
-                  <Text style={styles.idStatusText}>✓ {touristData.digital_id.status.toUpperCase()}</Text>
+                <View className="px-4 py-2 rounded-2xl" style={{ backgroundColor: colors.success }}>
+                  <Text className="text-white font-bold text-xs tracking-wider">✓ {touristData.digital_id.status.toUpperCase()}</Text>
                 </View>
               </View>
             </GradientView>
             
-            <Text style={[styles.blockchainInfo, { color: colors.textSecondary }]}>
+            <Text className="text-xs text-center mt-4 opacity-70" style={{ color: colors.textSecondary }}>
               Secured by blockchain: {touristData.digital_id.blockchain_txn_id}
             </Text>
           </View>
@@ -686,19 +690,19 @@ export const SmartTouristDashboard = () => {
 
       {/* SOS Modal */}
       <Modal visible={showSOSModal} animationType="fade" transparent={true}>
-        <View style={styles.sosModalContainer}>
+        <View className="flex-1 justify-center items-center bg-black/80 p-5">
           <GradientView
             colors={[colors.danger, colors.warning]}
-            style={styles.sosContent}
+            className="items-center p-8 rounded-2xl w-full max-w-sm"
           >
-            <Animated.View style={[styles.sosIconContainer]}>
+            <Animated.View className="mb-6 p-5 rounded-3xl bg-white/20">
               <IconComponent name="alert" size={80} color={colors.white} />
             </Animated.View>
-            <Text style={styles.sosTitle}>🚨 EMERGENCY SOS</Text>
-            <Text style={styles.sosCountdownText}>
+            <Text className="text-white text-3xl font-bold text-center mb-4">🚨 EMERGENCY SOS</Text>
+            <Text className="text-white text-xl font-semibold text-center mb-4">
               {sosCountdown > 0 ? `Activating in ${sosCountdown}...` : 'ACTIVATED!'}
             </Text>
-            <Text style={styles.sosMessage}>
+            <Text className="text-white text-center text-base leading-6 px-5 mb-8 opacity-90">
               {sosCountdown > 0 
                 ? "Emergency services will be notified. Cancel if this was accidental."
                 : "Help is on the way! Emergency services and contacts have been notified."
@@ -706,13 +710,13 @@ export const SmartTouristDashboard = () => {
             </Text>
             {sosCountdown > 0 && (
               <TouchableOpacity 
-                style={styles.cancelButton}
+                className="bg-white/20 px-8 py-3 rounded-3xl border-2 border-white"
                 onPress={() => {
                   setShowSOSModal(false);
                   setSOSCountdown(3);
                 }}
               >
-                <Text style={styles.cancelButtonText}>CANCEL</Text>
+                <Text className="text-white font-bold text-base tracking-wider">CANCEL</Text>
               </TouchableOpacity>
             )}
           </GradientView>
@@ -721,633 +725,13 @@ export const SmartTouristDashboard = () => {
 
       {/* Loading Overlay */}
       {isLoading && (
-        <View style={styles.loadingOverlay}>
+        <View className="absolute inset-0 justify-center items-center bg-black/50">
           <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={[styles.loadingText, { color: colors.text }]}>Loading...</Text>
+          <Text className="mt-4 text-base font-medium" style={{ color: colors.text }}>Loading...</Text>
         </View>
       )}
     </SafeAreaView>
   );
 };
-
-// Enhanced Stylesheet
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  
-  // Header Styles
-  header: {
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-    paddingTop: Platform.OS === 'ios' ? 50 : 30,
-  },
-  headerTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  headerProfile: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  profileImage: {
-    width: 55,
-    height: 55,
-    borderRadius: 27.5,
-    marginRight: 15,
-    borderWidth: 3,
-    borderColor: 'rgba(255,255,255,0.3)',
-  },
-  greeting: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: 'rgba(255,255,255,0.8)',
-  },
-  userName: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginTop: 2,
-    color: '#FFFFFF',
-  },
-  locationContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  userLocation: {
-    fontSize: 12,
-    marginLeft: 4,
-    color: 'rgba(255,255,255,0.8)',
-  },
-  headerActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  actionButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginLeft: 10,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-  },
-  
-  // Tab Navigation Styles
-  tabContainer: {
-    flexDirection: 'row',
-    marginHorizontal: 20,
-    marginTop: -20,
-    borderRadius: 15,
-    padding: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  tab: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  tabButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    justifyContent: 'center',
-  },
-  tabText: {
-    marginLeft: 6,
-    fontWeight: '600',
-    fontSize: 13,
-  },
-  
-  // Content Styles
-  content: {
-    flex: 1,
-    paddingTop: 10,
-  },
-  scrollContent: {
-    paddingHorizontal: 20,
-    paddingBottom: 30,
-  },
-  
-  // Section Styles
-  sectionContainer: {
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 15,
-    paddingHorizontal: 5,
-  },
-  
-  // Card Styles
-  card: {
-    borderRadius: 16,
-    padding: 20,
-    marginBottom: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  cardTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  
-  // Metric Card Styles
-  horizontalScroll: {
-    marginHorizontal: -20,
-    paddingLeft: 20,
-  },
-  metricCard: {
-    width: 150,
-    height: 110,
-    borderRadius: 16,
-    padding: 16,
-    marginRight: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  metricIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  metricContent: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  metricValue: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 4,
-  },
-  metricUnit: {
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  metricLabel: {
-    fontSize: 12,
-    fontWeight: '500',
-  },
-  
-  // Safety Gauge Styles
-  gaugeContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-    marginBottom: 20,
-    position: 'relative',
-  },
-  gaugeOuterCircle: {
-    width: 200,
-    height: 20,
-    borderRadius: 10,
-    backgroundColor: '#E9ECEF',
-    overflow: 'hidden',
-  },
-  gaugeProgress: {
-    height: '100%',
-    borderRadius: 10,
-  },
-  gaugeInnerCircle: {
-    position: 'absolute',
-    alignItems: 'center',
-  },
-  gaugeScore: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    marginTop: 30,
-  },
-  gaugeLabel: {
-    fontSize: 14,
-    marginTop: 4,
-  },
-  gaugeStatus: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginTop: 8,
-  },
-  safetyDetails: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingTop: 20,
-  },
-  safetyDetailItem: {
-    alignItems: 'center',
-  },
-  safetyDetailLabel: {
-    fontSize: 12,
-    marginBottom: 4,
-  },
-  safetyDetailValue: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  
-  // Alert Styles
-  alertItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  alertContent: {
-    flex: 1,
-  },
-  alertMessage: {
-    fontSize: 15,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  alertLocation: {
-    fontSize: 13,
-    marginBottom: 2,
-  },
-  alertTime: {
-    fontSize: 12,
-  },
-  
-  // Progress Styles
-  progressContainer: {
-    marginBottom: 16,
-  },
-  progressInfo: {
-    marginBottom: 12,
-  },
-  progressDay: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  progressLocation: {
-    fontSize: 14,
-    marginTop: 2,
-  },
-  progressBar: {
-    height: 8,
-    borderRadius: 4,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    borderRadius: 4,
-  },
-  
-  // Map Styles
-  mapPlaceholder: {
-    height: 200,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 16,
-    padding: 20,
-  },
-  mapPlaceholderText: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginTop: 8,
-    marginBottom: 8,
-  },
-  mapLocationText: {
-    fontSize: 14,
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  mapButton: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-  },
-  mapButtonText: {
-    color: '#FFF',
-    fontWeight: '600',
-  },
-  
-  // Timeline Styles
-  timelineItem: {
-    flexDirection: 'row',
-    marginBottom: 20,
-  },
-  timelineIndicator: {
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  timelineDot: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  timelineLine: {
-    flex: 1,
-    width: 2,
-    marginTop: 8,
-    minHeight: 40,
-  },
-  timelineContent: {
-    flex: 1,
-    paddingTop: 4,
-  },
-  placeName: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  placeDate: {
-    fontSize: 14,
-  },
-  ratingContainer: {
-    marginTop: 6,
-  },
-  ratingText: {
-    fontSize: 13,
-    fontWeight: '500',
-  },
-  
-  // Safety/SOS Styles
-  sosButton: {
-    flexDirection: 'row',
-    paddingVertical: 18,
-    paddingHorizontal: 24,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  sosButtonText: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 12,
-    letterSpacing: 1,
-  },
-  sosDescription: {
-    fontSize: 14,
-    textAlign: 'center',
-    lineHeight: 20,
-  },
-  
-  // Contact Styles
-  contactItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  contactAvatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
-  },
-  avatarText: {
-    fontSize: 20,
-  },
-  contactInfo: {
-    flex: 1,
-  },
-  contactName: {
-    fontSize: 16,
-    fontWeight: '600',
-    marginBottom: 2,
-  },
-  contactRelation: {
-    fontSize: 14,
-    marginBottom: 2,
-  },
-  contactPhone: {
-    fontSize: 12,
-  },
-  callButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  
-  // Safety Tips Styles
-  tipItem: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    marginBottom: 12,
-  },
-  tipIcon: {
-    marginRight: 12,
-    marginTop: 2,
-  },
-  tipText: {
-    flex: 1,
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  
-  // Modal Styles
-  modalBackdrop: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.7)',
-    padding: 20,
-  },
-  modalContent: {
-    width: '100%',
-    maxWidth: 400,
-    borderRadius: 20,
-    padding: 24,
-    maxHeight: height * 0.8,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-  },
-  closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.1)',
-  },
-  
-  // Digital ID Card Styles
-  idCard: {
-    borderRadius: 20,
-    padding: 24,
-    alignItems: 'center',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 16,
-    elevation: 12,
-  },
-  idPhoto: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderWidth: 4,
-    borderColor: '#FFF',
-    marginTop: -60,
-    marginBottom: 16,
-  },
-  idName: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFF',
-    marginBottom: 4,
-  },
-  idNumber: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.8)',
-    marginBottom: 20,
-  },
-  qrContainer: {
-    backgroundColor: '#FFF',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 20,
-  },
-  qrCode: {
-    width: 150,
-    height: 150,
-  },
-  idDetails: {
-    alignItems: 'center',
-  },
-  idValidity: {
-    fontSize: 14,
-    color: 'rgba(255,255,255,0.9)',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  idStatus: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-  },
-  idStatusText: {
-    color: '#FFF',
-    fontWeight: 'bold',
-    fontSize: 12,
-    letterSpacing: 1,
-  },
-  blockchainInfo: {
-    fontSize: 12,
-    textAlign: 'center',
-    marginTop: 16,
-    opacity: 0.7,
-  },
-  
-  // SOS Modal Styles
-  sosModalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.8)',
-    padding: 20,
-  },
-  sosContent: {
-    alignItems: 'center',
-    padding: 30,
-    borderRadius: 20,
-    width: '100%',
-    maxWidth: 400,
-  },
-  sosIconContainer: {
-    marginBottom: 24,
-    padding: 20,
-    borderRadius: 50,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-  },
-  sosTitle: {
-    color: '#FFF',
-    fontSize: 28,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 16,
-  },
-  sosCountdownText: {
-    color: '#FFF',
-    fontSize: 20,
-    fontWeight: '600',
-    textAlign: 'center',
-    marginBottom: 16,
-  },
-  sosMessage: {
-    color: '#FFF',
-    textAlign: 'center',
-    fontSize: 16,
-    lineHeight: 24,
-    paddingHorizontal: 20,
-    marginBottom: 32,
-    opacity: 0.9,
-  },
-  cancelButton: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    paddingHorizontal: 32,
-    paddingVertical: 12,
-    borderRadius: 25,
-    borderWidth: 2,
-    borderColor: '#FFF',
-  },
-  cancelButtonText: {
-    color: '#FFF',
-    fontWeight: 'bold',
-    fontSize: 16,
-    letterSpacing: 1,
-  },
-  
-  // Loading Overlay
-  loadingOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  loadingText: {
-    marginTop: 16,
-    fontSize: 16,
-    fontWeight: '500',
-  },
-});
 
 export default SmartTouristDashboard;
